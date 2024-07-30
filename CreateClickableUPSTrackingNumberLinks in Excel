@@ -1,0 +1,48 @@
+<# Control +A then Control + C to copy this. 
+Control + V into Powershell Admin Window
+#>
+
+
+Read-Host 'This script will only work on one column at a time. Please copy and paste "Laptop Tracking Numbers" or "Monitor Tracking Numbers" into a text file. Press "Enter" to continue:'
+
+<# Set Directory to Public for easy viewing , Note that this can be changed to any location you want the CSV file to be saved to after this script ends. Simply edit the path in $SetDirectoryLocation
+#>
+$SetDirectoryLocation = "C:\users\Public\Desktop"
+Set-Location $SetDirectoryLocation
+
+<# Manually input computer names with carriage returns(Enter) and create an array
+#>
+
+
+$ExcelTrackingNumbers = @()
+
+while ($true){
+$inputName = Read-Host "Copy and Paste (Ctrl + V) the tracking numbers here(When it's blank press "ENTER" to finish)"
+    
+if ([string]::IsNullOrWhiteSpace($inputName)) {
+break}
+    
+$ExcelTrackingNumbers += $inputName
+}
+
+<# Create an empty array to store the final data
+#>
+$hyperlinkData = @()
+
+<# Loop through each tracking number and create the hyperlink string
+#>
+foreach ($TrackingNumber in $trackingNumbers) {
+$hyperlink = "=HYPERLINK(""https://www.ups.com/track?tracknum=$TrackingNumber"",""$TrackingNumber"")"
+$hyperlinkData += [PSCustomObject]@{
+"TrackingNumber" = $hyperlink
+}
+}
+
+<# Export the data to a CSV file
+#>
+$csvPath = ".\hyperlinks.csv"
+$hyperlinkData | Export-Csv -Path $csvPath -NoTypeInformation
+
+<# Echo location of saved file
+#>
+Write-Host "File is saved in location : $SetDirectoryLocation and the name is "hyperlinks.csv" " -Foregroundcolor Yellow
